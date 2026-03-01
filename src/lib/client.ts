@@ -30,7 +30,12 @@ import {
     WebcastEvent,
     WebcastEventMap
 } from '@/types/events';
-import { ControlAction, ProtoMessageFetchResult, EnvelopeBusinessType } from '@/types';
+import {
+    ControlAction,
+    EnvelopeBusinessType,
+    ProtoMessageFetchResult,
+    WebcastBarrageMessage_BarrageType
+} from '@/types';
 import { WebcastRoomChatRouteResponse } from '@eulerstream/euler-api-sdk';
 
 // Backwards-compatible type for sendMessage options (SDK type no longer includes these fields)
@@ -608,6 +613,14 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             case 'WebcastBarrageMessage':
                 if (data.content?.displayType?.toLowerCase().includes('ttlive_superfan')) {
                     this.emit(WebcastEvent.SUPER_FAN, data);
+                }
+
+                if (data.msgType === WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_USER_UPGRADE) {
+                    this.emit(WebcastEvent.USER_UPGRADE, data);
+                }
+
+                if (data.msgType === WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_FANS_LEVEL_UPGRADE) {
+                    this.emit(WebcastEvent.FAN_UPGRADE, data);
                 }
 
                 return this.emit(WebcastEvent.BARRAGE, data);
