@@ -4,9 +4,9 @@ A Node.js library to receive live stream events such as comments and gifts in re
 from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal Webcast push service.
 This package includes a wrapper that connects to the Webcast service using just the username (`@uniqueId`).
 This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are
-required. Besides [Chat Comments](#chat), other events such
-as [Members Joining](#member), [Gifts](#gift), [Subscriptions](#subscribe), [Viewers](#roomuser), [Follows](#social), [Shares](#social), [Questions](#questionnew), [Likes](#like)
-and [Battles](#linkmicbattle) can be tracked.
+required. Besides [Chat Comments](#chat), other events such as [Members Joining](#member), [Gifts](#gift),
+[Viewers](#roomuser), [Follows](#follow), [Shares](#share), [Questions](#questionnew), [Likes](#like), [Battles](#linkmicbattle),
+[Super Fans](#superfan), [Super Fan Boxes](#superfanbox), [User Level Upgrades](#userupgrade), and [Fan Level Upgrades](#fanupgrade) can be tracked.
 
 [![Discord](https://img.shields.io/discord/977648006063091742?logo=discord&label=TikTokLive%20Discord&labelColor=%23171717&color=%231877af)](https://discord.gg/N3KSxzvDX8)
 ![Connections](https://tiktok.eulerstream.com/analytics/pips?client=ttlive-node)
@@ -304,10 +304,6 @@ connection.on(ControlEvent.CONNECTED, () => console.log("Connected!"));
 - [`WebcastEvent.LINK_MIC_BATTLE`](#linkmicbattle) or `"linkMicBattle"`
 - [`WebcastEvent.LINK_MIC_ARMIES`](#linkmicarmies) or `"linkMicArmies"`
 - [`WebcastEvent.LIVE_INTRO`](#liveintro) or `"liveIntro"`
-- [`WebcastEvent.SUPER_FAN`](#superfan) or `"superFan"`
-- [`WebcastEvent.FOLLOW`](#follow) or `"follow"`
-- [`WebcastEvent.SHARE`](#share) or `"share"`
-- [`WebcastEvent.STREAM_END`](#streamend) or `"streamEnd"`
 - [`WebcastEvent.ROOM_USER`](#roomuser) or `"roomUser"`
 - [`WebcastEvent.EMOTE`](#emote) or `"emote"`
 - [`WebcastEvent.GOAL_UPDATE`](#goalupdate) or `"goalUpdate"`
@@ -329,8 +325,16 @@ connection.on(ControlEvent.CONNECTED, () => console.log("Connected!"));
 - [`WebcastEvent.ROOM_VERIFY`](#roomverify) or `"roomVerify"`
 - [`WebcastEvent.LINK_LAYER`](#linklayer) or `"linkLayer"`
 - [`WebcastEvent.ROOM_PIN`](#roompin) or `"roomPin"`
+
+### Custom Events:
+
+- [`WebcastEvent.FOLLOW`](#follow) or `"follow"`
+- [`WebcastEvent.SHARE`](#share) or `"share"`
+- [`WebcastEvent.STREAM_END`](#streamend) or `"streamEnd"`
 - [`WebcastEvent.SUPER_FAN`](#superfan) or `"superFan"`
 - [`WebcastEvent.SUPER_FAN_BOX`](#superfanbox) or `"superFanBox"`
+- [`WebcastEvent.USER_UPGRADE`](#userupgrade) or `"userUpgrade"`
+- [`WebcastEvent.FAN_UPGRADE`](#fanupgrade) or `"fanUpgrade"`
 
 ## Control Events
 
@@ -669,84 +673,6 @@ connection.on(WebcastEvent.LIVE_INTRO, (msg) => {
 });
 ```
 
-### `streamEnd`
-
-Triggered when the live stream gets terminated by the host. Will also trigger the [`disconnected`](#disconnected) event.
-
-```ts
-connection.on(WebcastEvent.STREAM_END, ({ action }: { action: ControlAction }) => {
-    if (action === ControlAction.CONTROL_ACTION_STREAM_ENDED) {
-        console.log('Stream ended by user');
-    }
-    if (action === ControlAction.CONTROL_ACTION_STREAM_SUSPENDED) {
-        console.log('Stream ended by platform moderator (ban)');
-    }
-});
-```
-
-### `superFan`
-
-Triggers when a user becomes a Super Fan.
-
-```ts
-connection.on(WebcastEvent.SUPER_FAN, (data) => {
-    if (data.content?.defaultPattern) {
-        console.log(data.content.defaultPattern);
-    }
-    if (data.commonBarrageContent?.defaultPattern) {
-        console.log(data.commonBarrageContent.defaultPattern);
-    }
-});
-```
-
-### `superFanBox`
-
-Triggers when a user sends a Super Fan Box.
-
-```ts
-connection.on(WebcastEvent.SUPER_FAN_BOX, (data) => {
-    console.log('A Super Fan Box was sent!', data.envelopeInfo);
-});
-```
-
-### Custom Events
-
-These events are based on message events.
-
-### `follow`
-
-Triggers when a user follows the streamer. Based on `social` event.
-
-```ts
-connection.on(WebcastEvent.FOLLOW, (data) => {
-    const uniqueId = data.user?.uniqueId;
-    const nickname = data.user?.nickname;
-    if (uniqueId) {
-        console.log(`${uniqueId} followed!`);
-    }
-    if (nickname) {
-        console.log(`${nickname} followed!`);
-    }
-});
-```
-
-### `share`
-
-Triggers when a user shares the stream. Based on `social` event.
-
-```ts
-connection.on(WebcastEvent.SHARE, (data) => {
-    const uniqueId = data.user?.uniqueId;
-    const nickname = data.user?.nickname;
-    if (uniqueId) {
-        console.log(`${uniqueId} shared the stream!`);
-    }
-    if (nickname) {
-        console.log(`${nickname} shared the stream!`);
-    }
-})
-```
-
 ### `goalUpdate`
 
 Triggered when a channel goal is updated.
@@ -1067,6 +993,112 @@ connection.on(WebcastEvent.ROOM_PIN, (data: WebcastRoomPinMessage) => {
     }
     if (typeof likeCount === 'number') {
         console.log(`Pinned like count: ${likeCount}`);
+    }
+});
+```
+
+## Custom Events
+
+These events are derived from message events.
+
+### `follow`
+
+Triggers when a user follows the streamer. Based on `social` event.
+
+```ts
+connection.on(WebcastEvent.FOLLOW, (data) => {
+    const uniqueId = data.user?.uniqueId;
+    const nickname = data.user?.nickname;
+    if (uniqueId) {
+        console.log(`${uniqueId} followed!`);
+    }
+    if (nickname) {
+        console.log(`${nickname} followed!`);
+    }
+});
+```
+
+### `share`
+
+Triggers when a user shares the stream. Based on `social` event.
+
+```ts
+connection.on(WebcastEvent.SHARE, (data) => {
+    const uniqueId = data.user?.uniqueId;
+    const nickname = data.user?.nickname;
+    if (uniqueId) {
+        console.log(`${uniqueId} shared the stream!`);
+    }
+    if (nickname) {
+        console.log(`${nickname} shared the stream!`);
+    }
+})
+```
+
+### `streamEnd`
+
+Triggered when the live stream gets terminated by the host. Will also trigger the [`disconnected`](#disconnected) event. Based on `controlMessage`.
+
+```ts
+connection.on(WebcastEvent.STREAM_END, ({ action }: { action: ControlAction }) => {
+    if (action === ControlAction.CONTROL_ACTION_STREAM_ENDED) {
+        console.log('Stream ended by user');
+    }
+    if (action === ControlAction.CONTROL_ACTION_STREAM_SUSPENDED) {
+        console.log('Stream ended by platform moderator (ban)');
+    }
+});
+```
+
+### `superFan`
+
+Triggers when a user becomes a Super Fan. Based on `barrage` event.
+
+```ts
+connection.on(WebcastEvent.SUPER_FAN, (data) => {
+    if (data.content?.defaultPattern) {
+        console.log(data.content.defaultPattern);
+    }
+    if (data.commonBarrageContent?.defaultPattern) {
+        console.log(data.commonBarrageContent.defaultPattern);
+    }
+});
+```
+
+### `superFanBox`
+
+Triggers when a user sends a Super Fan Box. Based on `envelope` event.
+
+```ts
+connection.on(WebcastEvent.SUPER_FAN_BOX, (data) => {
+    console.log('A Super Fan Box was sent!', data.envelopeInfo);
+});
+```
+
+### `userUpgrade`
+
+Triggers when a user's TikTok LIVE user level is upgraded. Based on `barrage` event.
+
+```ts
+connection.on(WebcastEvent.USER_UPGRADE, (data) => {
+    const level = data.userGradeParam?.currentGrade;
+    const userLabel = data.userGradeParam?.user?.uniqueId || data.userGradeParam?.user?.nickname || 'A user';
+    if (typeof level === 'number') {
+        console.log(`${userLabel} leveled up to level ${level}`);
+    }
+});
+```
+
+### `fanUpgrade`
+
+Triggers when a user's fan level is upgraded in the creator's room. Based on `barrage` event.
+
+```ts
+connection.on(WebcastEvent.FAN_UPGRADE, (data) => {
+    const level = data.fansLevelParam?.currentGrade;
+    const userLabel = data.fansLevelParam?.user?.uniqueId || data.fansLevelParam?.user?.nickname || 'A user';
+    if (typeof level === 'number') {
+        console.log(`${userLabel} reached fan level ${level}`);
     }
 });
 ```
