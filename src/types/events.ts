@@ -94,6 +94,8 @@ export enum WebcastEvent {
     // Added 2.0.8-beta1
     SUPER_FAN = 'superFan',
     SUPER_FAN_BOX = 'superFanBox',
+    USER_UPGRADE = 'userUpgrade',
+    FAN_UPGRADE = 'fanUpgrade',
 }
 
 
@@ -111,6 +113,8 @@ export type ClientEventMap = {
     [WebcastEvent.FOLLOW]: EventHandler<WebcastSocialMessage>,
     [WebcastEvent.SUPER_FAN]: EventHandler<WebcastBarrageMessage>,
     [WebcastEvent.SUPER_FAN_BOX]: EventHandler<WebcastEnvelopeMessage>,
+    [WebcastEvent.USER_UPGRADE]: EventHandler<WebcastBarrageMessage>,
+    [WebcastEvent.FAN_UPGRADE]: EventHandler<WebcastBarrageMessage>,
     [WebcastEvent.SHARE]: EventHandler<WebcastSocialMessage>,
     [WebcastEvent.STREAM_END]: (event: { action: ControlAction }) => void | Promise<void>,
 

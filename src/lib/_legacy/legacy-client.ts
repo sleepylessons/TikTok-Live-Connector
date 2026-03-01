@@ -1,7 +1,8 @@
 import {
     BaseProtoMessage,
     ProtoMessageFetchResult,
-    WebcastControlMessage
+    WebcastControlMessage,
+    WebcastBarrageMessage_BarrageType
 } from '@/types/tiktok-schema';
 import { EventEmitter } from 'node:events';
 import { simplifyObject } from '@/lib/_legacy/data-converter';
@@ -88,6 +89,12 @@ export class WebcastPushConnection extends (TikTokLiveConnection as new (...args
                             || simplifiedObj.displayType?.toLowerCase()?.includes('ttlive_superfan')
                         ) {
                             this.emit(WebcastEvent.SUPER_FAN, simplifiedObj);
+                        }
+                        if (simplifiedObj.msgType === WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_USER_UPGRADE) {
+                            this.emit(WebcastEvent.USER_UPGRADE, simplifiedObj);
+                        }
+                        if (simplifiedObj.msgType === WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_FANS_LEVEL_UPGRADE) {
+                            this.emit(WebcastEvent.FAN_UPGRADE, simplifiedObj);
                         }
                         break;
                     case 'WebcastEnvelopeMessage':
